@@ -1,0 +1,35 @@
+#include <ESP8266WiFi.h>
+#include <ThingSpeak.h>
+const char* ssid = "YOUR_WIFI_SSID";
+const char* password = "YOUR_WIFI_PASSWORD";
+const unsigned long channelID = YOUR_CHANNEL_ID;
+const char* api_key = "YOUR_THINGSPEAK_API_KEY";
+const int ledPin = D1; // GPIO pin connected to the LED
+WiFiClient client;
+void setup() {
+pinMode(ledPin, OUTPUT);
+Serial.begin(115200);
+delay(10);
+WiFi.begin(ssid, password);
+while (WiFi.status() != WL_CONNECTED) {
+delay(500);
+Serial.print(".");
+}
+Serial.println("");
+Serial.println("WiFi connected");
+Serial.println("IP address: ");
+Serial.println(WiFi.localIP());
+ThingSpeak.begin(client);
+}
+void loop() {
+ThingSpeak.readChannel(channelID, api_key);
+if (ThingSpeak.isChannelValueUpdated(1)) {
+int ledState = ThingSpeak.getFieldAsInt(1);
+if (ledState == 1) {
+digitalWrite(ledPin, HIGH); // Turn on the LED
+} else {
+digitalWrite(ledPin, LOW); // Turn off the LED
+}
+}
+delay(1000);
+}
